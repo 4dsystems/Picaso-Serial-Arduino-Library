@@ -74,8 +74,8 @@
 #define DISABLE                 0
 #define HI                      1
 #define LO                      0
-#define INPUT                   1
-#define OUTPUT                  0
+#define INPUT4d                 1
+#define OUTPUT4d                0
 #define ON                      1
 #define OFF                     0
 
@@ -315,14 +315,14 @@
 
 
 // timer control  related constants
-#define TIMER0                  0
-#define TIMER1                  1
-#define TIMER2                  2
-#define TIMER3                  3
-#define TIMER4                  4
-#define TIMER5                  5
-#define TIMER6                  6
-#define TIMER7                  7
+#define TIMER04d                0
+#define TIMER14d                1
+#define TIMER24d                2
+#define TIMER34d                3
+#define TIMER44d                4
+#define TIMER54d                5
+#define TIMER64d                6
+#define TIMER74d                7
 
 // I2C timing related constants
 #define I2C_SLOW                0
