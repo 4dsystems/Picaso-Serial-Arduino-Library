@@ -1,3 +1,4 @@
+// SPE Version 1.1 added bus_ and pin_ functions
 /*
    Picaso_Serial_4DLib.cpp - Library for 4D Systems Serial Environment.
  */
@@ -270,6 +271,47 @@ void Picaso_Serial_4DLib::SetThisBaudrate(int Newrate)
 //*********************************************************************************************//
 //**********************************Compound 4D Routines***************************************//
 //*********************************************************************************************//
+
+word Picaso_Serial_4DLib::bus_In()
+{
+  _virtualPort->write(F_bus_In >> 8) ;
+  _virtualPort->write(F_bus_In) ;
+  return GetAckResp() ;
+}
+
+void Picaso_Serial_4DLib::bus_Out(word Bits)
+{
+  _virtualPort->write(F_bus_Out >> 8) ;
+  _virtualPort->write(F_bus_Out) ;
+  _virtualPort->write(Bits >> 8) ;
+  _virtualPort->write(Bits) ;
+  GetAck() ;
+}
+
+word Picaso_Serial_4DLib::bus_Read()
+{
+  _virtualPort->write(F_bus_Read >> 8) ;
+  _virtualPort->write(F_bus_Read) ;
+  return GetAckResp() ;
+}
+
+void Picaso_Serial_4DLib::bus_Set(word IOMap)
+{
+  _virtualPort->write(F_bus_Set >> 8) ;
+  _virtualPort->write(F_bus_Set) ;
+  _virtualPort->write(IOMap >> 8) ;
+  _virtualPort->write(IOMap) ;
+  GetAck() ;
+}
+
+void Picaso_Serial_4DLib::bus_Write(word Bits)
+{
+  _virtualPort->write(F_bus_Write >> 8) ;
+  _virtualPort->write(F_bus_Write) ;
+  _virtualPort->write(Bits >> 8) ;
+  _virtualPort->write(Bits) ;
+  GetAck() ;
+}
 
 word Picaso_Serial_4DLib::charheight(char  TestChar)
 {
@@ -1355,6 +1397,44 @@ word Picaso_Serial_4DLib::mem_Heap()
   _virtualPort->print((char)(F_mem_Heap >> 8));
   _virtualPort->print((char)(F_mem_Heap));
   return GetAckResp();
+}
+
+word Picaso_Serial_4DLib::pin_HI(word Pin)
+{
+  _virtualPort->write(F_pin_HI >> 8) ;
+  _virtualPort->write(F_pin_HI) ;
+  _virtualPort->write(Pin >> 8) ;
+  _virtualPort->write(Pin) ;
+  return GetAckResp() ;
+}
+
+word Picaso_Serial_4DLib::pin_LO(word Pin)
+{
+  _virtualPort->write(F_pin_LO >> 8) ;
+  _virtualPort->write(F_pin_LO) ;
+  _virtualPort->write(Pin >> 8) ;
+  _virtualPort->write(Pin) ;
+  return GetAckResp() ;
+}
+
+word Picaso_Serial_4DLib::pin_Read(word Pin)
+{
+  _virtualPort->write(F_pin_Read >> 8) ;
+  _virtualPort->write(F_pin_Read) ;
+  _virtualPort->write(Pin >> 8) ;
+  _virtualPort->write(Pin) ;
+  return GetAckResp() ;
+}
+
+word Picaso_Serial_4DLib::pin_Set(word Mode, word Pin)
+{
+  _virtualPort->write(F_pin_Set >> 8) ;
+  _virtualPort->write(F_pin_Set) ;
+  _virtualPort->write(Mode >> 8) ;
+  _virtualPort->write(Mode) ;
+  _virtualPort->write(Pin >> 8) ;
+  _virtualPort->write(Pin) ;
+  return GetAckResp() ;
 }
 
 void Picaso_Serial_4DLib::putCH(word  WordChar)

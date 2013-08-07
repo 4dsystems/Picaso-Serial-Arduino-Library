@@ -1,3 +1,4 @@
+// SPE Version 1.1 added bus_ and pin_ functions
 // undef windows definitions that are also 4DGL definitions
 #ifdef TRANSPARENT
     #undef TRANSPARENT
@@ -625,6 +626,11 @@
 
 #define F_charheight 29
 #define F_charwidth 30
+#define F_bus_In -45
+#define F_bus_Out -46
+#define F_bus_Read -49
+#define F_bus_Set -47
+#define F_bus_Write -48
 #define F_file_Close -232
 #define F_file_Count 1
 #define F_file_Dir 2
@@ -721,6 +727,10 @@
 #define F_media_WrSector 23
 #define F_mem_Free -220
 #define F_mem_Heap -221
+#define F_pin_HI -42
+#define F_pin_LO -43
+#define F_pin_Read -44
+#define F_pin_Set -41
 #define F_putCH -2
 #define F_putstr 24
 #define F_snd_BufSize -258

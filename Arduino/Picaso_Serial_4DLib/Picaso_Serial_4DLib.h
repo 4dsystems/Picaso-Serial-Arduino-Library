@@ -1,3 +1,4 @@
+// SPE Version 1.1 added bus_ and pin_ functions
 /*
 	4DSerial - Library for 4D Systems Serial Environment.
 	Released into the public domain.
@@ -23,6 +24,11 @@ class Picaso_Serial_4DLib
 		Tcallback4D Callback4D ;
 		
 		//Compound 4D Routines
+		word bus_In();
+		void bus_Out(word Bits);
+		word bus_Read();
+		void bus_Set(word IOMap);
+		void bus_Write(word Bits);
 		word charheight(char  TestChar);
 		word charwidth(char  TestChar);
 		word file_Close(word  Handle);
@@ -120,6 +126,10 @@ class Picaso_Serial_4DLib
 		word media_WrSector(t4DSector  SectorOut);
 		word mem_Free(word  Handle);
 		word mem_Heap();
+		word pin_HI(word Pin);
+		word pin_LO(word Pin);
+		word pin_Read(word Pin);
+		word pin_Set(word Mode, word Pin);
                 void putCH(word  WordChar);
 		word putstr(char *  InString);
 		void snd_BufSize(word  Bufsize);
