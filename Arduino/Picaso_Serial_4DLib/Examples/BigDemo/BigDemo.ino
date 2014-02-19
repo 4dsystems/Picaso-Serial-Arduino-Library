@@ -65,8 +65,8 @@
 #endif
 
 #include "Picaso_Serial_4DLib.h"
-#include "bigdemo.h" 
-#include "Picaso_const4D.h"
+#include "BigDemo.h" 
+#include "Picaso_Const4D.h"
 
 Picaso_Serial_4DLib Display(&DisplaySerial);
 
@@ -90,7 +90,7 @@ int trymount(void)
   j = 0 ;
   if (!i)
   {
-    Display.putstr("Pleass insert uSD card\n") ;
+    Display.putstr("Please insert uSD card\n") ;
     while (   (!i)
            && (j < retries) )
     {
@@ -274,7 +274,7 @@ void gfx_Part1(void)
   HWLOGGING.println(F("Display off")) ;
   Display.gfx_Contrast(0) ;
   delay(1000) ;
-  Display.gfx_Contrast(1) ;
+  Display.gfx_Contrast(15) ;
   HWLOGGING.println(F("Display on")) ;
   Display.gfx_Ellipse(100,230, 50,30,RED) ;
   Display.gfx_EllipseFilled(100,300, 50,30,AQUA) ;
