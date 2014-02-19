@@ -65,8 +65,8 @@
 #endif
 
 #include "Picaso_Serial_4DLib.h"
-#include "bigdemo.h" 
-#include "Picaso_const4D.h"
+#include "BigDemo.h" 
+#include "Picaso_Const4D.h"
 
 Picaso_Serial_4DLib Display(&DisplaySerial);
 
