@@ -1,3 +1,4 @@
+// SPE Version 1.2 added peekM and pokeM
 // SPE Version 1.1 added bus_ and pin_ functions
 /*
 	4DSerial - Library for 4D Systems Serial Environment.
@@ -127,10 +128,12 @@ class Picaso_Serial_4DLib
 		word mem_Free(word  Handle);
 		word mem_Heap();
 		word pin_HI(word Pin);
+		word peekM(word  Address);
 		word pin_LO(word Pin);
 		word pin_Read(word Pin);
 		word pin_Set(word Mode, word Pin);
                 void putCH(word  WordChar);
+		void pokeM(word  Address, word  WordValue) ;
 		word putstr(char *  InString);
 		void snd_BufSize(word  Bufsize);
 		void snd_Continue();

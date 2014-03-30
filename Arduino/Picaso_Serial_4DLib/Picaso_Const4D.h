@@ -1,3 +1,4 @@
+// SPE Version 1.2 added peekM and pokeM functions
 // SPE Version 1.1 added bus_ and pin_ functions
 // undef windows definitions that are also 4DGL definitions
 #ifdef TRANSPARENT
@@ -727,10 +728,12 @@
 #define F_media_WrSector 23
 #define F_mem_Free -220
 #define F_mem_Heap -221
+#define F_peekM 39
 #define F_pin_HI -42
 #define F_pin_LO -43
 #define F_pin_Read -44
 #define F_pin_Set -41
+#define F_pokeM 40
 #define F_putCH -2
 #define F_putstr 24
 #define F_snd_BufSize -258

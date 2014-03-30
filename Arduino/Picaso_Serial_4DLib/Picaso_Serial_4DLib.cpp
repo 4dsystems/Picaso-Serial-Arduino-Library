@@ -1,3 +1,4 @@
+// SPE Version 1.2 added peekM and pokeM
 // SPE Version 1.1 added bus_ and pin_ functions
 /*
    Picaso_Serial_4DLib.cpp - Library for 4D Systems Serial Environment.
@@ -1408,6 +1409,15 @@ word Picaso_Serial_4DLib::pin_HI(word Pin)
   return GetAckResp() ;
 }
 
+word Picaso_Serial_4DLib::peekM(word  Address)
+{
+  _virtualPort->print((char)(F_peekM >> 8)) ;
+  _virtualPort->print((char)(F_peekM)) ;
+  _virtualPort->print((char)(Address >> 8)) ;
+  _virtualPort->print((char)(Address)) ;
+  return GetAckResp() ;
+}
+
 word Picaso_Serial_4DLib::pin_LO(word Pin)
 {
   _virtualPort->write(F_pin_LO >> 8) ;
@@ -1443,6 +1453,17 @@ void Picaso_Serial_4DLib::putCH(word  WordChar)
   _virtualPort->print((char)(F_putCH)) ;
   _virtualPort->print((char)(WordChar >> 8)) ;
   _virtualPort->print((char)(WordChar)) ;
+  GetAck() ;
+}
+
+void Picaso_Serial_4DLib::pokeM(word  Address, word  WordValue)
+{
+  _virtualPort->print((char)(F_pokeM >> 8)) ;
+  _virtualPort->print((char)(F_pokeM)) ;
+  _virtualPort->print((char)(Address >> 8)) ;
+  _virtualPort->print((char)(Address)) ;
+  _virtualPort->print((char)(WordValue >> 8)) ;
+  _virtualPort->print((char)(WordValue)) ;
   GetAck() ;
 }
 
