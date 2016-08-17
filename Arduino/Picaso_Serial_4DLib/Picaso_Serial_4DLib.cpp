@@ -16,8 +16,11 @@
 
 
 Picaso_Serial_4DLib::Picaso_Serial_4DLib(Stream * virtualPort) { 
-        _virtualPort = virtualPort; 
+    _virtualPort = virtualPort; 
+#ifndef _SAM3XA_
+	// Only done on non Arduino Due Boards
 	_virtualPort->flush();
+#endif
 }
 
 //*********************************************************************************************//
