@@ -230,7 +230,7 @@ class Picaso_Serial_4DLib
 		bool unknownSerial = false;
 		Stream * _virtualPort;
 		unsigned long GetBaudRate(word Newrate);
-		void (*setBaudRateExternal)(long newRate);
+		void (*setBaudRateExternal)(unsigned long newRate);
 		void (Picaso_Serial_4DLib::*setBaudRateInternal)(unsigned long newRate);
 
 		void exSetBaudRateHndl(unsigned long newRate);
