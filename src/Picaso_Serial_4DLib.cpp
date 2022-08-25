@@ -15,7 +15,7 @@
 
 
 
-Picaso_Serial_4DLib::Picaso_Serial_4DLib(Stream * virtualPort, void (*setBaudRateHndl)(long)) { 
+Picaso_Serial_4DLib::Picaso_Serial_4DLib(Stream * virtualPort, void (*setBaudRateHndl)(unsigned long)) { 
     _virtualPort = virtualPort; 
     setBaudRateExternal = setBaudRateHndl;
     setBaudRateInternal = &exSetBaudRateHndl;

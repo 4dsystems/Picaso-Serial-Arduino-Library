@@ -231,7 +231,16 @@ class Picaso_Serial_4DLib
 		Stream * _virtualPort;
 		unsigned long GetBaudRate(word Newrate);
 		void (*setBaudRateExternal)(long newRate);
-		void (Picaso_Serial_4DLib::*setBaudRateInternal)(long newRate);
+		void (Picaso_Serial_4DLib::*setBaudRateInternal)(unsigned long newRate);
+
+		void exSetBaudRateHndl(unsigned long newRate);
+		void hwSetBaudRateHndl(unsigned long newRate);
+#ifdef SoftwareSerial_h
+		void swSetBaudRateHndl(unsigned long newRate);
+#endif
+#ifdef AltSoftSerial_h
+		void alSetBaudRateHndl(unsigned long newRate);
+#endif		
 
 		//Intrinsic 4D Routines
 		void WriteChars(char * charsout);
@@ -250,14 +259,6 @@ class Picaso_Serial_4DLib
 		void printNumber(unsigned long, uint8_t);
 		void printFloat(double number, uint8_t digits);
 
-		void exSetBaudRateHndl(long newRate);
-		void hwSetBaudRateHndl(long newRate);
-#ifdef SoftwareSerial_h
-		void swSetBaudRateHndl(long newRate);
-#endif
-#ifdef AltSoftSerial_h
-		void alSetBaudRateHndl(long newRate);
-#endif		
 };
  
 #endif
