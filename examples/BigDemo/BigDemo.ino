@@ -1026,9 +1026,9 @@ void loop()
     delay(5000) ;
   }
 
-  setbaudWait(BAUD_19200) ;
+  Display.setbaudWait(BAUD_19200) ;
   Display.putstr("Hello at 19200\n") ;
-  setbaudWait(BAUD_9600) ;
+  Display.setbaudWait(BAUD_9600) ;
   Display.putstr("Back to 9600\n") ;
   delay(5000) ;
 #endif 
