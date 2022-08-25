@@ -32,7 +32,7 @@ typedef void (*Tcallback4D)(int, unsigned char);
 class Picaso_Serial_4DLib
 {
 	public:
-		Picaso_Serial_4DLib(Stream * virtualPort, void (*setBaudRateHndl)(long) = NULL);
+		Picaso_Serial_4DLib(Stream * virtualPort, void (*setBaudRateHndl)(unsigned long) = NULL);
 		Picaso_Serial_4DLib(HardwareSerial * serial);
 #ifdef SoftwareSerial_h		
 		Picaso_Serial_4DLib(SoftwareSerial * serial);
@@ -229,6 +229,7 @@ class Picaso_Serial_4DLib
 	private:
 		bool unknownSerial = false;
 		Stream * _virtualPort;
+		unsigned long GetBaudRate(word Newrate);
 		void (*setBaudRateExternal)(long newRate);
 		void (Picaso_Serial_4DLib::*setBaudRateInternal)(long newRate);
 
@@ -245,7 +246,6 @@ class Picaso_Serial_4DLib
 		word GetAckResSector(t4DSector Sector);
 		word GetAckResStr(char * OutStr);
 		word GetAckResData(t4DByteArray OutData, word size);
-		long GetBaudRate(long Newrate);
 		
 		void printNumber(unsigned long, uint8_t);
 		void printFloat(double number, uint8_t digits);

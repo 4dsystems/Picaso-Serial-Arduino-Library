@@ -257,9 +257,9 @@ word Picaso_Serial_4DLib::GetAckResData(t4DByteArray OutData, word size)
 	return Result ;
 }
 
-long Picaso_Serial_4DLib::GetBaudRate(long Newrate)
+unsigned long Picaso_Serial_4DLib::GetBaudRate(word Newrate)
 {
-  long br ;
+  unsigned long br ;
   switch(Newrate)
   {
     case BAUD_110:
@@ -323,7 +323,7 @@ long Picaso_Serial_4DLib::GetBaudRate(long Newrate)
       br = 703125l ; // actual rate is not  600000 ;
       break ;
     default:
-      br = Newrate;
+      br = 0;
       break;
   }
   return br;
@@ -2096,20 +2096,22 @@ word Picaso_Serial_4DLib::file_FindNextRet(char *  StringIn)
 bool Picaso_Serial_4DLib::setbaudWait(word Newrate)
 {
   if (unknownSerial && (setBaudRateExternal == NULL)) return false;
+  unsigned long baudrate = GetBaudRate(Newrate);
+  if (baudrate == 0) return false;
   _virtualPort->print((char)(F_setbaudWait >> 8));
   _virtualPort->print((char)(F_setbaudWait));
   _virtualPort->print((char)(Newrate >> 8));
   _virtualPort->print((char)(Newrate));
-  (this->*setBaudRateInternal)(GetBaudRate(Newrate)); // change this systems baud rate to match new display rate, ACK is 100ms away
+  (this->*setBaudRateInternal)(baudrate); // change this systems baud rate to match new display rate, ACK is 100ms away
   GetAck() ;
   return true;
 }
 
-void Picaso_Serial_4DLib::exSetBaudRateHndl(long newRate) {
+void Picaso_Serial_4DLib::exSetBaudRateHndl(unsigned long newRate) {
   setBaudRateExternal(newRate);
 }
 
-void Picaso_Serial_4DLib::hwSetBaudRateHndl(long newRate) {
+void Picaso_Serial_4DLib::hwSetBaudRateHndl(unsigned long newRate) {
   ((HardwareSerial *)_virtualPort)->flush();
   ((HardwareSerial *)_virtualPort)->end();
   ((HardwareSerial *)_virtualPort)->begin(newRate);
@@ -2118,7 +2120,7 @@ void Picaso_Serial_4DLib::hwSetBaudRateHndl(long newRate) {
 }
 
 #ifdef SoftwareSerial_h
-void Picaso_Serial_4DLib::swSetBaudRateHndl(long newRate) {
+void Picaso_Serial_4DLib::swSetBaudRateHndl(unsigned long newRate) {
   ((SoftwareSerial *)_virtualPort)->flush();
   ((SoftwareSerial *)_virtualPort)->end();
   ((SoftwareSerial *)_virtualPort)->begin(newRate);
@@ -2128,7 +2130,7 @@ void Picaso_Serial_4DLib::swSetBaudRateHndl(long newRate) {
 #endif
 
 #ifdef AltSoftSerial_h
-void Picaso_Serial_4DLib::alSetBaudRateHndl(long newRate) {
+void Picaso_Serial_4DLib::alSetBaudRateHndl(unsigned long newRate) {
   ((AltSoftSerial *)_virtualPort)->flush();
   ((AltSoftSerial *)_virtualPort)->end();
   ((AltSoftSerial *)_virtualPort)->begin(newRate);

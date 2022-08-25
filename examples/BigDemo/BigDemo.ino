@@ -70,7 +70,7 @@ Picaso_Serial_4DLib Display(&DisplaySerial);
 
 // Use this block if using a different Serial class
 //
-// void customSetBaudRate(long newRate) {
+// void customSetBaudRate(unsigned long newRate) {
 //   DisplaySerial.flush();
 //   DisplaySerial.end();
 //   DisplaySerial.begin(newRate);
