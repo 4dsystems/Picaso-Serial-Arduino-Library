@@ -19,7 +19,8 @@
 /*                                                                                           */
 /*                   Define the serial port to use here, if using software serial set it to  */
 /*                   something like SerialS.                                                 */
-  #define DisplaySerial Serial
+/*                                                                                           */
+#define DisplaySerial Serial
 /*                                                                                           */
 /*                   To use SoftwareSerial uncomment the following and set the pins you are  */
 /*                   using correctly                                                         */
@@ -35,17 +36,13 @@
 /*                   occurs. If you want to do your own handling set Callback4D to NULL      */
 /*                   otherwise set it to the address of the error routine                    */
 /*                                                                                           */
-/* Baud rate change  Because the stream class used within the library does not support       */
-/*                   .end, or .begin the setbaudWait and SetThisBaudrate functions are       */
-/*                   coded within this demo                                                  */
-/*                                                                                           */
 /* Sketch Size!      If you are logging messages, then you may exceed the maximum sketch     */
 /*                   size for some of the smaller boards, you can comment out TEST_USD to    */
 /*                   exclude tests that require a uSD card to run and/or TEST_OTHER to       */
 /*                   exclude tests that do not require a uSD card to run.                    */
+/*                                                                                           */
 #define TEST_USD
 #define TEST_OTHER
-/*                                                                                           */
 /*                                                                                           */
 /*                   The following files are needed on the uSD to complete all tests. Their  */
 /*                   relative location (from C:\Users\Public\Documents\4D Labs) is shown     */
@@ -68,7 +65,19 @@
 #include "BigDemo.h" 
 #include "Picaso_Const4D.h"
 
+// Use this if using HardwareSerial or SoftwareSerial
 Picaso_Serial_4DLib Display(&DisplaySerial);
+
+// Use this block if using a different Serial class
+//
+// void customSetBaudRate(long newRate) {
+//   DisplaySerial.flush();
+//   DisplaySerial.end();
+//   DisplaySerial.begin(newRate);
+//   delay(50) ; // Display sleeps for 100
+//   DisplaySerial.flush();  
+// }
+// Picaso_Serial_4DLib Display(&DisplaySerial, customSetBaudRate);
 
 const char *atoz = {"abcdefghijklmnopqrstuvwxyz"} ;
 
@@ -663,7 +672,7 @@ void Media_Tests(void)
   if (i == 0)
   {
     HWLOGGING.print(F("Please insert the uSD card")) ;
-    while (i = 0)
+    while (i == 0)
     {
       HWLOGGING.print(F(".")) ;
       i = Display.media_Init() ;
@@ -842,69 +851,6 @@ void mycallback(int ErrCode, unsigned char Errorbyte)
     delay(200);               // wait for a second
   }
 #endif
-}
-
-void SetThisBaudrate(int Newrate)
-{
-  int br ;
-  DisplaySerial.flush() ;
-  DisplaySerial.end() ;
-  switch(Newrate)
-  {
-    case BAUD_110    : br = 110 ;
-      break ;
-    case BAUD_300    : br = 300 ;
-      break ;
-    case BAUD_600    : br = 600 ;
-      break ;
-    case BAUD_1200   : br = 1200 ;
-      break ;
-    case BAUD_2400   : br = 2400 ;
-      break ;
-    case BAUD_4800   : br = 4800 ;
-      break ;
-    case BAUD_9600   : br = 9600 ;
-      break ;
-    case BAUD_14400  : br = 14400 ;
-      break ;
-    case BAUD_19200  : br = 19200 ;
-      break ;
-    case BAUD_31250  : br = 31250 ;
-      break ;
-    case BAUD_38400  : br = 38400 ;
-      break ;
-    case BAUD_56000  : br = 56000 ;
-      break ;
-    case BAUD_57600  : br = 57600 ;
-      break ;
-    case BAUD_115200 : br = 115200 ;
-      break ;
-    case BAUD_128000 : br = 133928 ; // actual rate is not 128000 ;
-      break ;
-    case BAUD_256000 : br = 281250 ; // actual rate is not  256000 ;
-      break ;
-    case BAUD_300000 : br = 312500 ; // actual rate is not  300000 ;
-      break ;
-    case BAUD_375000 : br = 401785 ; // actual rate is not  375000 ;
-      break ;
-    case BAUD_500000 : br = 562500 ; // actual rate is not  500000 ;
-      break ;
-    case BAUD_600000 : br = 703125 ; // actual rate is not  600000 ;
-      break ;
-  }
-  DisplaySerial.begin(br) ;
-  delay(50) ; // Display sleeps for 100
-  DisplaySerial.flush() ;
-}
-
-void setbaudWait(word  Newrate)
-{
-  DisplaySerial.print((char)(F_setbaudWait >> 8));
-  DisplaySerial.print((char)(F_setbaudWait));
-  DisplaySerial.print((char)(Newrate >> 8));
-  DisplaySerial.print((char)(Newrate));
-  SetThisBaudrate(Newrate); // change this systems baud rate to match new display rate, ACK is 100ms away
-  Display.GetAck() ;
 }
 
 #define RESETLINE 4
@@ -1087,17 +1033,3 @@ void loop()
   delay(5000) ;
 #endif 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
