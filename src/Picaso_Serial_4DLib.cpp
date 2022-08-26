@@ -2112,11 +2112,17 @@ void Picaso_Serial_4DLib::exSetBaudRateHndl(unsigned long newRate) {
 }
 
 void Picaso_Serial_4DLib::hwSetBaudRateHndl(unsigned long newRate) {
-  ((HardwareSerial *)_virtualPort)->flush();
+#if !defined(ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_SAM)
+	//Only done for non-SAMD/SAM architectures
+ ((HardwareSerial *)_virtualPort)->flush();
+#endif
   ((HardwareSerial *)_virtualPort)->end();
   ((HardwareSerial *)_virtualPort)->begin(newRate);
   delay(50) ; // Display sleeps for 100
-  ((HardwareSerial *)_virtualPort)->flush();  
+#if !defined(ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_SAM)
+	//Only done for non-SAMD/SAM architectures
+ ((HardwareSerial *)_virtualPort)->flush();
+#endif
 }
 
 #ifdef SoftwareSerial_h
