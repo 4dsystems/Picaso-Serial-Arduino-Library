@@ -15,13 +15,48 @@
 
 
 
-Picaso_Serial_4DLib::Picaso_Serial_4DLib(Stream * virtualPort) { 
+Picaso_Serial_4DLib::Picaso_Serial_4DLib(Stream * virtualPort, void (*setBaudRateHndl)(unsigned long)) { 
     _virtualPort = virtualPort; 
+    setBaudRateExternal = setBaudRateHndl;
+    setBaudRateInternal = &Picaso_Serial_4DLib::exSetBaudRateHndl;
+    unknownSerial = true;
 #if !defined(ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_SAM)
 	//Only done for non-SAMD/SAM architectures
 	_virtualPort->flush();
 #endif
 }
+
+Picaso_Serial_4DLib::Picaso_Serial_4DLib(HardwareSerial * serial) { 
+    _virtualPort = (Stream *)serial; 
+    setBaudRateInternal = &Picaso_Serial_4DLib::hwSetBaudRateHndl;
+#if !defined(ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_SAM)
+	//Only done for non-SAMD/SAM architectures
+	_virtualPort->flush();
+#endif
+}
+
+#ifdef SoftwareSerial_h		
+Picaso_Serial_4DLib::Picaso_Serial_4DLib(SoftwareSerial * serial) { 
+    _virtualPort = (Stream *)serial; 
+    setBaudRateInternal = &Picaso_Serial_4DLib::swSetBaudRateHndl;
+#if !defined(ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_SAM)
+	//Only done for non-SAMD/SAM architectures
+	_virtualPort->flush();
+#endif
+}
+#endif
+
+#ifdef AltSoftSerial_h
+Picaso_Serial_4DLib::Picaso_Serial_4DLib(AltSoftSerial * serial) { 
+    _virtualPort = (Stream *)serial; 
+    setBaudRateInternal = &(Picaso_Serial_4DLib::alSetBaudRateHndl);
+#if !defined(ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_SAM)
+	//Only done for non-SAMD/SAM architectures
+	_virtualPort->flush();
+#endif
+}
+#endif
+
 
 //*********************************************************************************************//
 //**********************************Intrinsic 4D Routines**************************************//
@@ -222,57 +257,76 @@ word Picaso_Serial_4DLib::GetAckResData(t4DByteArray OutData, word size)
 	return Result ;
 }
 
-void Picaso_Serial_4DLib::SetThisBaudrate(int Newrate)
+unsigned long Picaso_Serial_4DLib::GetBaudRate(word Newrate)
 {
-  int br ;
-  _virtualPort->flush() ;
-//  _virtualPort->end() ;
+  unsigned long br ;
   switch(Newrate)
   {
- /*   case BAUD_110    : br = 110 ;
+    case BAUD_110:
+      br = 110l ;
       break ;
-    case BAUD_300    : br = 300 ;
+    case BAUD_300:
+      br = 300l ;
       break ;
-    case BAUD_600    : br = 600 ;
+    case BAUD_600:
+      br = 600l ;
       break ;
-    case BAUD_1200   : br = 1200 ;
+    case BAUD_1200:
+      br = 1200l ;
       break ;
-    case BAUD_2400   : br = 2400 ;
+    case BAUD_2400:
+      br = 2400l ;
       break ;
-    case BAUD_4800   : br = 4800 ;
-      break ;*/
-    case BAUD_9600   : br = 9600 ;
+    case BAUD_4800:
+      br = 4800l ;
       break ;
-//   case BAUD_14400  : br = 14400 ;
-//      break ;
-    case BAUD_19200  : br = 19200 ;
+    case BAUD_9600:
+      br = 9600l ;
       break ;
- /*   case BAUD_31250  : br = 31250 ;
+    case BAUD_14400:
+      br = 14400l ;
+     break ;
+    case BAUD_19200:
+      br = 19200l ;
       break ;
-    case BAUD_38400  : br = 38400 ;
+    case BAUD_31250:
+      br = 31250l ;
       break ;
-    case BAUD_56000  : br = 56000 ;
+    case BAUD_38400:
+      br = 38400l ;
       break ;
-    case BAUD_57600  : br = 57600 ;
+    case BAUD_56000:
+      br = 56000l ;
       break ;
-    case BAUD_115200 : br = 115200 ;
+    case BAUD_57600:
+      br = 57600l ;
       break ;
-    case BAUD_128000 : br = 133928 ; // actual rate is not 128000 ;
+    case BAUD_115200:
+      br = 115200l ;
       break ;
-    case BAUD_256000 : br = 281250 ; // actual rate is not  256000 ;
+    case BAUD_128000:
+      br = 133928l ; // actual rate is not 128000 ;
       break ;
-    case BAUD_300000 : br = 312500 ; // actual rate is not  300000 ;
+    case BAUD_256000:
+      br = 281250l ; // actual rate is not  256000 ;
       break ;
-    case BAUD_375000 : br = 401785 ; // actual rate is not  375000 ;
+    case BAUD_300000:
+      br = 312500l ; // actual rate is not  300000 ;
       break ;
-    case BAUD_500000 : br = 562500 ; // actual rate is not  500000 ;
+    case BAUD_375000:
+      br = 401785l ; // actual rate is not  375000 ;
       break ;
-    case BAUD_600000 : br = 703125 ; // actual rate is not  600000 ;
-      break ;*/
+    case BAUD_500000:
+      br = 562500l ; // actual rate is not  500000 ;
+      break ;
+    case BAUD_600000:
+      br = 703125l ; // actual rate is not  600000 ;
+      break ;
+    default:
+      br = 0;
+      break;
   }
-//  _virtualPort->begin(br) ;
-  delay(50) ; // Display sleeps for 100
-  _virtualPort->flush() ;
+  return br;
 }
 
 //*********************************************************************************************//
@@ -2039,12 +2093,54 @@ word Picaso_Serial_4DLib::file_FindNextRet(char *  StringIn)
   return GetAckResStr(StringIn) ;
 }
 
-void Picaso_Serial_4DLib::setbaudWait(word  Newrate)
+bool Picaso_Serial_4DLib::setbaudWait(word Newrate)
 {
+  if (unknownSerial && (setBaudRateExternal == NULL)) return false;
+  unsigned long baudrate = GetBaudRate(Newrate);
+  if (baudrate == 0) return false;
   _virtualPort->print((char)(F_setbaudWait >> 8));
   _virtualPort->print((char)(F_setbaudWait));
   _virtualPort->print((char)(Newrate >> 8));
   _virtualPort->print((char)(Newrate));
-  SetThisBaudrate(Newrate); // change this systems baud rate to match new display rate, ACK is 100ms away
+  (this->*setBaudRateInternal)(baudrate); // change this systems baud rate to match new display rate, ACK is 100ms away
   GetAck() ;
+  return true;
 }
+
+void Picaso_Serial_4DLib::exSetBaudRateHndl(unsigned long newRate) {
+  setBaudRateExternal(newRate);
+}
+
+void Picaso_Serial_4DLib::hwSetBaudRateHndl(unsigned long newRate) {
+#if !defined(ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_SAM)
+	//Only done for non-SAMD/SAM architectures
+ ((HardwareSerial *)_virtualPort)->flush();
+#endif
+  ((HardwareSerial *)_virtualPort)->end();
+  ((HardwareSerial *)_virtualPort)->begin(newRate);
+  delay(50) ; // Display sleeps for 100
+#if !defined(ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_SAM)
+	//Only done for non-SAMD/SAM architectures
+ ((HardwareSerial *)_virtualPort)->flush();
+#endif
+}
+
+#ifdef SoftwareSerial_h
+void Picaso_Serial_4DLib::swSetBaudRateHndl(unsigned long newRate) {
+  ((SoftwareSerial *)_virtualPort)->flush();
+  ((SoftwareSerial *)_virtualPort)->end();
+  ((SoftwareSerial *)_virtualPort)->begin(newRate);
+  delay(50) ; // Display sleeps for 100
+  ((SoftwareSerial *)_virtualPort)->flush();  
+}
+#endif
+
+#ifdef AltSoftSerial_h
+void Picaso_Serial_4DLib::alSetBaudRateHndl(unsigned long newRate) {
+  ((AltSoftSerial *)_virtualPort)->flush();
+  ((AltSoftSerial *)_virtualPort)->end();
+  ((AltSoftSerial *)_virtualPort)->begin(newRate);
+  delay(50) ; // Display sleeps for 100
+  ((AltSoftSerial *)_virtualPort)->flush();  
+}
+#endif		

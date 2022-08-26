@@ -19,7 +19,8 @@
 /*                                                                                           */
 /*                   Define the serial port to use here, if using software serial set it to  */
 /*                   something like SerialS.                                                 */
-  #define DisplaySerial Serial
+/*                                                                                           */
+#define DisplaySerial Serial
 /*                                                                                           */
 /*                   To use SoftwareSerial uncomment the following and set the pins you are  */
 /*                   using correctly                                                         */
@@ -35,17 +36,13 @@
 /*                   occurs. If you want to do your own handling set Callback4D to NULL      */
 /*                   otherwise set it to the address of the error routine                    */
 /*                                                                                           */
-/* Baud rate change  Because the stream class used within the library does not support       */
-/*                   .end, or .begin the setbaudWait and SetThisBaudrate functions are       */
-/*                   coded within this demo                                                  */
-/*                                                                                           */
 /* Sketch Size!      If you are logging messages, then you may exceed the maximum sketch     */
 /*                   size for some of the smaller boards, you can comment out TEST_USD to    */
 /*                   exclude tests that require a uSD card to run and/or TEST_OTHER to       */
 /*                   exclude tests that do not require a uSD card to run.                    */
+/*                                                                                           */
 #define TEST_USD
 #define TEST_OTHER
-/*                                                                                           */
 /*                                                                                           */
 /*                   The following files are needed on the uSD to complete all tests. Their  */
 /*                   relative location (from C:\Users\Public\Documents\4D Labs) is shown     */
@@ -59,16 +56,28 @@
 /*********************************************************************************************/
 
 #ifdef LOG_MESSAGES
-  #define HWLOGGING Serial
+#define HWLOGGING Serial
 #else
-  #define HWLOGGING if (1) {} else Serial
+#define HWLOGGING if (1) {} else Serial
 #endif
 
 #include "Picaso_Serial_4DLib.h"
-#include "BigDemo.h" 
+#include "BigDemo.h"
 #include "Picaso_Const4D.h"
 
-Picaso_Serial_4DLib Display(&DisplaySerial);
+// Use this if using HardwareSerial or SoftwareSerial
+//Picaso_Serial_4DLib Display(&DisplaySerial);
+
+// Use this block if using a different Serial class
+//
+void customSetBaudRate(unsigned long newRate) {
+  DisplaySerial.flush();
+  DisplaySerial.end();
+  DisplaySerial.begin(newRate);
+  delay(50) ; // Display sleeps for 100
+  DisplaySerial.flush();
+}
+Picaso_Serial_4DLib Display(&DisplaySerial, customSetBaudRate);
 
 const char *atoz = {"abcdefghijklmnopqrstuvwxyz"} ;
 
@@ -92,7 +101,7 @@ int trymount(void)
   {
     Display.putstr("Please insert uSD card\n") ;
     while (   (!i)
-           && (j < retries) )
+              && (j < retries) )
     {
       Display.putstr(".") ;
       i = Display.file_Mount() ;
@@ -122,20 +131,20 @@ int RAWPartitionbase(unsigned long * rawbaseo)
     RAW       = false ;
     FAT       = false ;
     if (   (sector[511] == 0xaa)
-        && (sector[510] == 0x55) )
-    {									 // possible partition table
+           && (sector[510] == 0x55) )
+    { // possible partition table
       if (   (   (sector[446] ==   0)
-              || (sector[446] == 0x80) )
-          && (   (sector[462] ==   0)
-              || (sector[462] == 0x80) )
-          && (   (sector[478] ==   0)
-              || (sector[478] == 0x80) )
-          && (   (sector[494] ==   0)
-              || (sector[494] == 0x80) ) )
+                 || (sector[446] == 0x80) )
+             && (   (sector[462] ==   0)
+                    || (sector[462] == 0x80) )
+             && (   (sector[478] ==   0)
+                    || (sector[478] == 0x80) )
+             && (   (sector[494] ==   0)
+                    || (sector[494] == 0x80) ) )
       {
         if (   (sector[450] == 0x04)
-            || (sector[450] == 0x06)
-            || (sector[450] == 0x0E) )
+               || (sector[450] == 0x06)
+               || (sector[450] == 0x0E) )
           FAT = true ;
         if (sector[466] == 0xDA)
         {
@@ -156,7 +165,7 @@ int RAWPartitionbase(unsigned long * rawbaseo)
     else
       RAW = true ; // but no really possible as we couldn't have gotten this far in this sketch
   }
-return result ;
+  return result ;
 }
 
 void Function_Tests (void)
@@ -175,7 +184,7 @@ void Function_Tests (void)
   HWLOGGING.println(F("file_Run, file_Exec and file_LoadFunction Tests")) ;
   j = Display.mem_Heap() ;
   handle = Display.file_LoadFunction(functest) ;
-  
+
   h1 = Display.writeString(0,  "Please enter your name") ;   // prompts string
   h2 = Display.writeString(h1, "") ;                         // result string, must be max length if following strings are to be 'kept'
   HWLOGGING.print(F("String Handles")) ;
@@ -187,7 +196,7 @@ void Function_Tests (void)
   parms[2] = 20 ;
   parms[3] = 1 ;                   // 1 = save screen, 0 = don't save screen
   Display.TimeLimit4D = 5000000 ;
-  
+
   i = Display.file_CallFunction(handle, 4, parms) ;         // calls a function
   HWLOGGING.print(F("You typed ")) ;
   HWLOGGING.print(i) ;
@@ -199,7 +208,7 @@ void Function_Tests (void)
   Display.mem_Free(handle) ;
   l = Display.mem_Heap() ;
   delay(5000) ;                                       // give time to read the 'restored' screen
-  
+
   h1 = Display.writeString(0,  "Please type anything") ;     // prompts string
   h2 = Display.writeString(h1, "") ;                         // result string, must be max length if following strings are to be 'kept'
   parms[0] = h1 ;                  // prompt string
@@ -209,7 +218,7 @@ void Function_Tests (void)
   i = Display.file_Exec(functest, 4, parms) ;
   Display.readString(h2, wks2) ;                              // read string immediately as it will be overwritten 'soon'
   Display.gfx_Cls() ;
-  
+
   h1 = Display.writeString(0,  "Please some more") ;         // prompts string
   h2 = Display.writeString(h1, "") ;                         // result string, must be max length if following strings are to be 'kept'
   parms[0] = h1 ;                  // prompt string
@@ -255,19 +264,19 @@ void gfx_Part1(void)
   Display.gfx_BevelWidth(6) ;                 // make the button bigger by increasing the bevel size
   for (i = 1; i <= 10; i++)
   {
-    Display.gfx_Button(ON, 120,50, YELLOW, PURPLE, FONT3, 1, 1, "Test Button") ;
+    Display.gfx_Button(ON, 120, 50, YELLOW, PURPLE, FONT3, 1, 1, "Test Button") ;
     delay(100) ;
-    Display.gfx_Button(OFF, 120,50, YELLOW, PURPLE, FONT3, 1, 1, "Test Button") ;
+    Display.gfx_Button(OFF, 120, 50, YELLOW, PURPLE, FONT3, 1, 1, "Test Button") ;
     delay(100) ;
   }
   Display.gfx_BevelShadow(3) ; // back to default
   Display.gfx_ChangeColour(LIME, WHITE) ;
-  Display.gfx_Circle(30,30,10,BLUE) ;
-  Display.gfx_CircleFilled(130,30,10,BLUE) ;
-  Display.gfx_Rectangle(60,60,100,100,RED) ;  // draw a rectange to show where we are clipping
-  Display.gfx_ClipWindow(60,60,100,100) ;
+  Display.gfx_Circle(30, 30, 10, BLUE) ;
+  Display.gfx_CircleFilled(130, 30, 10, BLUE) ;
+  Display.gfx_Rectangle(60, 60, 100, 100, RED) ; // draw a rectange to show where we are clipping
+  Display.gfx_ClipWindow(60, 60, 100, 100) ;
   Display.gfx_Clipping(ON) ;                  // turn clipping on but just use it for text
-  Display.gfx_MoveTo(40,80) ;
+  Display.gfx_MoveTo(40, 80) ;
   Display.putstr("1234567890asdfghjkl") ;     // this is clipped
   Display.gfx_Clipping(OFF) ;
   delay(1000) ;
@@ -276,19 +285,19 @@ void gfx_Part1(void)
   delay(1000) ;
   Display.gfx_Contrast(15) ;
   HWLOGGING.println(F("Display on")) ;
-  Display.gfx_Ellipse(100,230, 50,30,RED) ;
-  Display.gfx_EllipseFilled(100,300, 50,30,AQUA) ;
+  Display.gfx_Ellipse(100, 230, 50, 30, RED) ;
+  Display.gfx_EllipseFilled(100, 300, 50, 30, AQUA) ;
   Display.gfx_FrameDelay(6) ;
   HWLOGGING.print(F("X Res= ")) ;
-  HWLOGGING.print(Display.gfx_Get(X_MAX)+1) ;
+  HWLOGGING.print(Display.gfx_Get(X_MAX) + 1) ;
   HWLOGGING.print(F(" Y Res= ")) ;
-  HWLOGGING.println(Display.gfx_Get(Y_MAX)+1) ;
+  HWLOGGING.println(Display.gfx_Get(Y_MAX) + 1) ;
   HWLOGGING.print(F("Pixel at 0,30 is ")) ;
   HWLOGGING.println(Display.gfx_GetPixel(0, 30), HEX) ;
-  Display.gfx_Line(0,0,100,200,BLUE) ;
+  Display.gfx_Line(0, 0, 100, 200, BLUE) ;
   Display.gfx_LinePattern(0x00aa) ;
   Display.gfx_Set(OBJECT_COLOUR, WHITE);
-  Display.gfx_LineTo(239,319) ;
+  Display.gfx_LineTo(239, 319) ;
   Display.gfx_LinePattern(0) ;            // reser
   Display.gfx_BGcolour(BLACK) ;           // reset
   Display.txt_BGcolour(BLACK) ;           // reset
@@ -309,9 +318,9 @@ void gfx_Part2(void)
   k = 180 ;
   l = 80 ;
   Display.gfx_MoveTo(k, l);
-  Display.gfx_CircleFilled(k,l,5,BLUE) ;
+  Display.gfx_CircleFilled(k, l, 5, BLUE) ;
   i = -90;   // 12 o'clock position
-  while (i<270)
+  while (i < 270)
   {
     Display.gfx_Orbit(i, 30, &orbitx, &orbity);
     k = 3;
@@ -320,9 +329,9 @@ void gfx_Part2(void)
     Display.gfx_Circle(orbitx , orbity, k, BLUE);
     i += 30;   // each 30 degreees
   }
-  
+
   Display.gfx_OutlineColour(YELLOW) ;
-  Display.gfx_Panel(PANEL_RAISED,140,0,190,20, LIME) ;
+  Display.gfx_Panel(PANEL_RAISED, 140, 0, 190, 20, LIME) ;
   Display.gfx_OutlineColour(0) ;                    // turn outline off
   vx[0] = 36;   vy[0] = 110;
   vx[1] = 36;   vy[1] = 80;
@@ -343,8 +352,8 @@ void gfx_Part2(void)
   vx[16] = 110; vy[16] = 76;
   vx[17] = 119; vy[17] = 70;
   // house
-  Display.gfx_Rectangle(6,50,66,110,RED);             // frame
-  Display.gfx_Triangle(6,50,36,9,66,50,YELLOW);       // roof
+  Display.gfx_Rectangle(6, 50, 66, 110, RED);         // frame
+  Display.gfx_Triangle(6, 50, 36, 9, 66, 50, YELLOW); // roof
   Display.gfx_Polyline(4, &vx[0], &vy[0], CYAN);            // door
   // man
   Display.gfx_Circle(85, 56, 10, BLUE);               // head
@@ -357,7 +366,7 @@ void gfx_Part2(void)
   Display.gfx_Line(104, 104, 106, 90, PINK);          // left arm
   Display.gfx_Line(112, 90, 116, 104, PINK);          // right arm
   Display.gfx_Polyline(3, &vx[15], &vy[15], SALMON);  // dress
-  
+
   vx[0] = 10; vy[0] = 130;
   vx[1] = 35; vy[1] = 125;
   vx[2] = 80; vy[2] = 130;
@@ -366,7 +375,7 @@ void gfx_Part2(void)
   vx[5] = 35; vy[5] = 170;
   vx[6] = 10; vy[6] = 160;
   Display.gfx_Polygon(7, vx, vy, RED);
-  
+
   vx[0] = 110; vy[0] = 130;
   vx[1] = 135; vy[1] = 125;
   vx[2] = 180; vy[2] = 130;
@@ -375,20 +384,20 @@ void gfx_Part2(void)
   vx[5] = 135; vy[5] = 170;
   vx[6] = 110; vy[6] = 160;
   Display.gfx_PolygonFilled(7, vx, vy, RED);
-  
+
   Display.gfx_PutPixel(40, 94, LIME) ;          // door knob
-  Display.gfx_Rectangle(0,180, 10,200, AQUA) ;
-  Display.gfx_RectangleFilled(20,180, 40,200, ORANGE) ;
-  Display.gfx_ScreenCopyPaste(0,0, 0,280, 40,40) ;
+  Display.gfx_Rectangle(0, 180, 10, 200, AQUA) ;
+  Display.gfx_RectangleFilled(20, 180, 40, 200, ORANGE) ;
+  Display.gfx_ScreenCopyPaste(0, 0, 0, 280, 40, 40) ;
   Display.gfx_ScreenMode(LANDSCAPE) ;
   //Display.gfx_Set(CLIPPING, ON) ;
   //Display.gfx_SetClipRegion() ;
-  Display.gfx_Slider(SLIDER_RAISED, 210, 100, 250,10, BLUE, 100, 50) ; // coordinates are different because we are in landscape mode
+  Display.gfx_Slider(SLIDER_RAISED, 210, 100, 250, 10, BLUE, 100, 50) ; // coordinates are different because we are in landscape mode
   Display.gfx_ScreenMode(PORTRAIT) ;
   Display.gfx_Transparency(ON) ;
   Display.gfx_TransparentColour(YELLOW) ;  // how do we 'test' this?
-  Display.gfx_Triangle(6,250, 36,209, 66,250,YELLOW);
-  Display.gfx_TriangleFilled(110,210, 130,210, 120,230,CYAN);
+  Display.gfx_Triangle(6, 250, 36, 209, 66, 250, YELLOW);
+  Display.gfx_TriangleFilled(110, 210, 130, 210, 120, 230, CYAN);
 }
 
 void text_Tests(void)
@@ -396,7 +405,7 @@ void text_Tests(void)
   Display.gfx_Cls() ;
   HWLOGGING.println(F("Text Tests")) ;
   Display.putstr("Text Tests") ;
-  
+
   Display.txt_Attributes(BOLD + INVERSE + ITALIC + UNDERLINED) ;
   Display.txt_Xgap(3) ;
   Display.txt_Ygap(3) ;
@@ -405,7 +414,7 @@ void text_Tests(void)
   Display.txt_FontID(FONT3) ;
   Display.txt_MoveCursor(5, 0) ;
   Display.putstr("Hello There") ;
-  
+
   Display.txt_MoveCursor(6, 2) ;
   Display.txt_Height(2) ;
   Display.txt_Width(2) ;
@@ -428,7 +437,7 @@ void text_Tests(void)
   Display.txt_BGcolour(BLACK) ;
   Display.txt_FGcolour(LIME) ;
   Display.txt_FontID(FONT3) ;
-  Display.txt_MoveCursor(0,0) ;      // reset
+  Display.txt_MoveCursor(0, 0) ;     // reset
 }
 
 void FAT_Tests(void)
@@ -449,9 +458,9 @@ void FAT_Tests(void)
   HWLOGGING.print(Display.file_Count("*.*")) ;
   HWLOGGING.println(F(" Files")) ;
   Display.file_Dir("*.dat") ;     // should this get returned!? FindFirst and next certainly should, both need to be manual as they need "to(buffer)"
-  
+
   if (Display.file_Exists(testdat))
-  Display.file_Erase(testdat) ;
+    Display.file_Erase(testdat) ;
   handle = Display.file_Open(testdat, 'w') ;
   HWLOGGING.print(F("Handle= ")) ;
   HWLOGGING.println(handle) ;
@@ -460,7 +469,7 @@ void FAT_Tests(void)
   Display.file_PutW(1234, handle) ;
   Display.file_PutS("This is a Test", handle) ;
   Display.file_Close(handle) ;
-  
+
   handle = Display.file_Open(testdat, 'r') ;
   HWLOGGING.print(F("Handle= ")) ;
   HWLOGGING.println(handle) ;
@@ -477,7 +486,7 @@ void FAT_Tests(void)
   HWLOGGING.print(F("Bytes read= ")) ;
   HWLOGGING.print(i) ;
   HWLOGGING.print(F(" Data=")) ;
-  for (j = 0; j <= i-1; j++)
+  for (j = 0; j <= i - 1; j++)
     HWLOGGING.print(bytes[j], HEX) ;
   i = Display.file_Tell(handle, &w1, &w2) ;
   HWLOGGING.print(F("\nFile pointer= ")) ;
@@ -485,20 +494,20 @@ void FAT_Tests(void)
   i = Display.file_Size(handle, &w1, &w2) ;
   HWLOGGING.print(F("File size=")) ;
   HWLOGGING.println((w1 << 16) + w2) ;
-  
+
   Display.file_Close(handle) ;
   Display.file_Erase(testdat) ;
-  
+
   handle = Display.file_Open(testdat, 'w') ;
   HWLOGGING.print(F("Handle= ")) ;
   HWLOGGING.println(handle) ;
-  for(i = 1; i <= 50; i++)
+  for (i = 1; i <= 50; i++)
   {
     data.recnum = i ;
     k = i % 20 ;
     for (j = 0; j <= 4; j++)
     {
-      data.values[j] = atoz[k+j] ;
+      data.values[j] = atoz[k + j] ;
       data.idx = atoz[rand() % 27] ;
     }
     Display.file_Write(sizeof(data), (char *)&data, handle) ;
@@ -514,7 +523,7 @@ void FAT_Tests(void)
   HWLOGGING.print(data.values[3]) ;
   HWLOGGING.print(data.values[4]) ;
   HWLOGGING.println(data.idx) ;
-  Display.file_Seek(handle, 0, 10*sizeof(data)) ;
+  Display.file_Seek(handle, 0, 10 * sizeof(data)) ;
   i = Display.file_Read((char *)&data, sizeof(data), handle) ;
   HWLOGGING.print(data.recnum) ;
   HWLOGGING.print(data.values[0]) ;
@@ -525,12 +534,12 @@ void FAT_Tests(void)
   HWLOGGING.println(data.idx) ;
   Display.file_Close(handle) ;
   Display.file_Erase(testdat) ;
-  
+
   Display.file_FindFirstRet("*.dat", wks) ;
   HWLOGGING.println(wks) ;
   Display.file_FindNextRet(wks) ;
   HWLOGGING.print(wks) ;
-  
+
   handle = Display.file_Open(testdat, 'w') ;
   HWLOGGING.print(F("Handle= ")) ;
   HWLOGGING.println(handle) ;
@@ -547,24 +556,24 @@ void FAT_Tests(void)
   Display.file_Close(handle) ;
   Display.gfx_Cls() ;
   handle = Display.file_Open(testdat, 'r') ;
-  Display.file_Image(0,0,handle) ;
+  Display.file_Image(0, 0, handle) ;
   Display.file_Close(handle) ;
-  Display.gfx_MoveTo(40,10) ;
+  Display.gfx_MoveTo(40, 10) ;
   Display.putstr("4D Logo") ;
-  
+
   Display.file_Erase(testdat) ;
   handle = Display.file_Open(testdat, 'w') ;
   HWLOGGING.print(F("Handle= ")) ;
   HWLOGGING.println(handle) ;
-  Display.file_ScreenCapture(0,0,100,32, handle) ;
+  Display.file_ScreenCapture(0, 0, 100, 32, handle) ;
   Display.file_Close(handle) ;
-  
+
   handle = Display.file_Open(testdat, 'r') ;
-  Display.file_Image(0,40,handle) ;
+  Display.file_Image(0, 40, handle) ;
   Display.file_Rewind(handle) ;
-  Display.file_Image(0,80,handle) ;
+  Display.file_Image(0, 80, handle) ;
   Display.file_Rewind(handle) ;
-  Display.file_Image(0,120,handle) ;
+  Display.file_Image(0, 120, handle) ;
   Display.file_Close(handle) ;
   Display.file_Erase(testdat) ;
 }
@@ -597,10 +606,10 @@ void IMG_Tests(void)
     delay(250) ;
   }
   Display.gfx_BevelShadow(3) ; // back to default
-  
+
   Display.img_SetPosition(handle, 0, 0, 50) ; // move to a different position
   Display.img_Show(handle, 0) ;
-  
+
   j = Display.img_GetWord(handle, 0, IMAGE_FRAMES) ;
   for (i = 0; i < j; i++)
   {
@@ -608,7 +617,7 @@ void IMG_Tests(void)
     Display.img_Show(handle, 0) ;
     delay(500) ;
   }
-  
+
   delay(500) ;
   Display.img_Disable(handle, ALL) ;
   j = 0 ;
@@ -626,7 +635,7 @@ void IMG_Tests(void)
     Display.img_Enable(handle, i) ;
   }
   Display.gfx_Cls() ;
-  Display.img_Show(handle,ALL) ;
+  Display.img_Show(handle, ALL) ;
   //  img_ClearAttributes(handle, index, value) ;
   //  img_SetAttributes(handle, index, value) ;
   if (ftouchtests)
@@ -638,10 +647,10 @@ void IMG_Tests(void)
     {
       j = Display.touch_Get(TOUCH_STATUS) ;
       if (j == TOUCH_PRESSED)
-      i = Display.img_Touched(handle, ALL) ;
+        i = Display.img_Touched(handle, ALL) ;
     } while (i == -1) ;
     Display.putstr("You touched Image Index ") ;
-    itoa(i,wk,10) ;
+    itoa(i, wk, 10) ;
     Display.putstr(wk) ;
   }
   Display.mem_Free(handle) ;
@@ -663,17 +672,17 @@ void Media_Tests(void)
   if (i == 0)
   {
     HWLOGGING.print(F("Please insert the uSD card")) ;
-    while (i = 0)
+    while (i == 0)
     {
       HWLOGGING.print(F(".")) ;
       i = Display.media_Init() ;
     }
   }
-  
+
   HWLOGGING.print(F("\nFirst RAW sector=")) ;
   HWLOGGING.println(rawbase) ;
   trymount() ;
-  
+
   handle = Display.file_Open("gfx2demo.gci", 'r') ;
   Display.file_Seek(handle, 0x49, 0x5800) ;   // location of large unicorn file
   i = (long)128 * 128 * 13 * 2 + 8 ;     // size of large unicorn file
@@ -698,10 +707,10 @@ void Media_Tests(void)
   }
   Display.file_Close(handle) ;
   Display.media_SetSector(rawbase >> 16, rawbase & 0xFFFF) ;
-  Display.media_Image(0,0) ;
+  Display.media_Image(0, 0) ;
   Display.media_SetSector(rawbase >> 16, rawbase & 0xFFFF) ;
-  Display.media_Video(0,128) ;
-  
+  Display.media_Video(0, 128) ;
+
   Display.media_SetSector(rawbase >> 16, rawbase & 0xFFFF) ;
   Display.media_WriteByte(0x11) ;
   Display.media_WriteWord(0x2233) ;
@@ -737,9 +746,9 @@ void Sound_Tests(void)
   HWLOGGING.print(F("Original Pitch=")) ;
   HWLOGGING.println(i) ;
   delay(5000) ;
-  Display.snd_Pitch(trunc(i*2 /*one octave, 1.0594631 one semitone*/)) ;
+  Display.snd_Pitch(trunc(i * 2 /*one octave, 1.0594631 one semitone*/)) ;
   delay(5000) ;
-  Display.snd_Pitch(trunc(i/2)) ;
+  Display.snd_Pitch(trunc(i / 2)) ;
   delay(5000) ;
   Display.snd_Pitch(i) ;
   delay(5000) ;
@@ -777,20 +786,20 @@ void Touch_Tests(void)
   Display.putstr("Please ensure Touch is only\ndetected in the Blue area") ;
   HWLOGGING.println(F("Detecting touch in Region")) ;
   Display.touch_Set(TOUCH_ENABLE) ;
-  Display.touch_DetectRegion(100,100, 200, 200) ;
-  Display.gfx_RectangleFilled(100,100, 200, 200, BLUE) ;
+  Display.touch_DetectRegion(100, 100, 200, 200) ;
+  Display.gfx_RectangleFilled(100, 100, 200, 200, BLUE) ;
   do {} while (Display.touch_Get(TOUCH_STATUS) != TOUCH_PRESSED);
   Display.touch_Set(TOUCH_REGIONDEFAULT) ;
   Display.gfx_Cls() ;
   Display.putstr("Draw.. Drawing stops\nwhen touch released\n") ;
   HWLOGGING.println(F("Drawing")) ;
-  
-  while(Display.touch_Get(TOUCH_STATUS) != TOUCH_PRESSED)
-  {      // we"ll wait for a touch
+
+  while (Display.touch_Get(TOUCH_STATUS) != TOUCH_PRESSED)
+  { // we"ll wait for a touch
   }
   firstx = Display.touch_Get(TOUCH_GETX);                          // so we can get the first point
   firsty = Display.touch_Get(TOUCH_GETY);
-  while(state != TOUCH_RELEASED)
+  while (state != TOUCH_RELEASED)
   {
     state = Display.touch_Get(TOUCH_STATUS);                       // look for any touch activity
     x = Display.touch_Get(TOUCH_GETX);                             // grab the x
@@ -812,9 +821,9 @@ void Touch_Tests(void)
 }
 
 int freeRam () {
-  extern int __heap_start, *__brkval; 
-  int v; 
-  return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
+  extern int __heap_start, *__brkval;
+  int v;
+  return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
 }
 
 void mycallback(int ErrCode, unsigned char Errorbyte)
@@ -830,11 +839,11 @@ void mycallback(int ErrCode, unsigned char Errorbyte)
   }
   else
     HWLOGGING.println(F("")) ;
-  while(1) ; // you can return here, or you can loop
+  while (1) ; // you can return here, or you can loop
 #else
-// Pin 13 has an LED connected on most Arduino boards. Just give it a name
+  // Pin 13 has an LED connected on most Arduino boards. Just give it a name
 #define led 13
-  while(1)
+  while (1)
   {
     digitalWrite(led, HIGH);   // turn the LED on (HIGH is the voltage level)
     delay(200);               // wait for a second
@@ -844,80 +853,17 @@ void mycallback(int ErrCode, unsigned char Errorbyte)
 #endif
 }
 
-void SetThisBaudrate(int Newrate)
-{
-  int br ;
-  DisplaySerial.flush() ;
-  DisplaySerial.end() ;
-  switch(Newrate)
-  {
-    case BAUD_110    : br = 110 ;
-      break ;
-    case BAUD_300    : br = 300 ;
-      break ;
-    case BAUD_600    : br = 600 ;
-      break ;
-    case BAUD_1200   : br = 1200 ;
-      break ;
-    case BAUD_2400   : br = 2400 ;
-      break ;
-    case BAUD_4800   : br = 4800 ;
-      break ;
-    case BAUD_9600   : br = 9600 ;
-      break ;
-    case BAUD_14400  : br = 14400 ;
-      break ;
-    case BAUD_19200  : br = 19200 ;
-      break ;
-    case BAUD_31250  : br = 31250 ;
-      break ;
-    case BAUD_38400  : br = 38400 ;
-      break ;
-    case BAUD_56000  : br = 56000 ;
-      break ;
-    case BAUD_57600  : br = 57600 ;
-      break ;
-    case BAUD_115200 : br = 115200 ;
-      break ;
-    case BAUD_128000 : br = 133928 ; // actual rate is not 128000 ;
-      break ;
-    case BAUD_256000 : br = 281250 ; // actual rate is not  256000 ;
-      break ;
-    case BAUD_300000 : br = 312500 ; // actual rate is not  300000 ;
-      break ;
-    case BAUD_375000 : br = 401785 ; // actual rate is not  375000 ;
-      break ;
-    case BAUD_500000 : br = 562500 ; // actual rate is not  500000 ;
-      break ;
-    case BAUD_600000 : br = 703125 ; // actual rate is not  600000 ;
-      break ;
-  }
-  DisplaySerial.begin(br) ;
-  delay(50) ; // Display sleeps for 100
-  DisplaySerial.flush() ;
-}
-
-void setbaudWait(word  Newrate)
-{
-  DisplaySerial.print((char)(F_setbaudWait >> 8));
-  DisplaySerial.print((char)(F_setbaudWait));
-  DisplaySerial.print((char)(Newrate >> 8));
-  DisplaySerial.print((char)(Newrate));
-  SetThisBaudrate(Newrate); // change this systems baud rate to match new display rate, ACK is 100ms away
-  Display.GetAck() ;
-}
-
 #define RESETLINE 4
 
 void setup()
 {
-  pinMode(13,OUTPUT);
+  pinMode(13, OUTPUT);
   pinMode(RESETLINE, OUTPUT);  // Set D4 on Arduino to Output (4D Arduino Adaptor V2 - Display Reset)
   digitalWrite(RESETLINE, 1);  // Reset the Display via D4
   delay(100);
   digitalWrite(RESETLINE, 0);  // unReset the Display via D4
   delay(5000);
- 
+
 #ifdef LOG_MESSAGES
   HWLOGGING.begin(19200);
   HWLOGGING.print(F("\n\nBigDemo for Arduino\n"));
@@ -930,7 +876,7 @@ void loop()
   char wks[20] ;
   DisplaySerial.begin(9600) ;
   Display.TimeLimit4D   = 5000 ; // 5 second timeout on all commands
-//  Display.Callback4D = NULL ;
+  //  Display.Callback4D = NULL ;
   Display.Callback4D = mycallback ;
 
   Display.gfx_Cls() ;
@@ -940,7 +886,7 @@ void loop()
   ftouchtests = false ;
   floadtests  = false ;
   fsoundtests = false ;
-//  Display.gfx_Cls() ;
+  //  Display.gfx_Cls() ;
   Display.sys_GetModel(wks) ; // length is also returned, but we don't need that here
   HWLOGGING.print(F("Display model: ")) ;
   HWLOGGING.println(wks) ;
@@ -948,28 +894,28 @@ void loop()
   Display.putstr(wks) ;
   i = strlen(wks) ;
   if (   (wks[i] == 'T')
-      || (wks[i-1] == 'T')
-      || (wks[i-2] == 'T') )
+         || (wks[i - 1] == 'T')
+         || (wks[i - 2] == 'T') )
     ftouchtests = true ;
   //for(int j=0; j<= i; j++)
   //{
   //  HWLOGGING.write(wks[j]);
   //}
-  ftouchtests = true;  
+  ftouchtests = true;
   HWLOGGING.print(F("SPE2 Version: ")) ;
-  HWLOGGING.println(Display.sys_GetVersion(),HEX) ;
+  HWLOGGING.println(Display.sys_GetVersion(), HEX) ;
   HWLOGGING.print(F("PmmC Version: ")) ;
-  HWLOGGING.println(Display.sys_GetPmmC(),HEX) ;
+  HWLOGGING.println(Display.sys_GetPmmC(), HEX) ;
   if (fFATtests)
   {
     if (RAWPartitionbase(&rawbase))
       fmediatests = true ;
     if (   (Display.file_Exists(gfx2demodat) != 0)
-        && (Display.file_Exists(gfx2demogci) != 0) )
+           && (Display.file_Exists(gfx2demogci) != 0) )
       fimgtests = true ;
     if (   (Display.file_Exists(functest) != 0)
-        && (Display.file_Exists(functestg) != 0)
-        && (Display.file_Exists(functestd) != 0) )
+           && (Display.file_Exists(functestg) != 0)
+           && (Display.file_Exists(functestd) != 0) )
       floadtests = true ;
     if (Display.file_Exists(soundtest))
       fsoundtests = true ;
@@ -980,7 +926,7 @@ void loop()
     if (fmediatests)
     {
       if (Display.file_Exists(gfx2demogci))
-      HWLOGGING.println(F("Media tests will be done\n")) ;
+        HWLOGGING.println(F("Media tests will be done\n")) ;
       else
       {
         HWLOGGING.print(F("Media tests cannot be done, missing ")) ;
@@ -1027,21 +973,21 @@ void loop()
     HWLOGGING.println(F("Touch Tests will be done")) ;
   else
     HWLOGGING.println(F("Touch Tests will not be done, display doesn't appear capable")) ;
-    
-//  HWLOGGING.println(freeRam()) ;
+
+  //  HWLOGGING.println(freeRam()) ;
   delay(5000) ;
-  
+
 #ifdef TEST_OTHER
   gfx_Part1() ; // GFX Part 1 tests
   delay(5000) ;
-  
+
   gfx_Part2() ; // GFX Part 2 tests
   delay(5000) ;
-  
+
   text_Tests() ; // text tests
   delay(5000) ;
 #endif
-  
+
 #ifdef TEST_USD
   if (fFATtests)
   {
@@ -1053,7 +999,7 @@ void loop()
     IMG_Tests() ;
     delay(5000) ;
   }
- 
+
   if (fmediatests)
   {
     Media_Tests() ;
@@ -1072,7 +1018,7 @@ void loop()
     delay(5000) ;
   }
 #endif
-  
+
 #ifdef TEST_OTHER
   if (ftouchtests)
   {
@@ -1080,24 +1026,10 @@ void loop()
     delay(5000) ;
   }
 
-  setbaudWait(BAUD_19200) ;
+  Display.setbaudWait(BAUD_19200) ;
   Display.putstr("Hello at 19200\n") ;
-  setbaudWait(BAUD_9600) ;
+  Display.setbaudWait(BAUD_9600) ;
   Display.putstr("Back to 9600\n") ;
   delay(5000) ;
-#endif 
+#endif
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
