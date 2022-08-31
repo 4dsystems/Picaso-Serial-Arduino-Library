@@ -66,18 +66,18 @@
 #include "Picaso_Const4D.h"
 
 // Use this if using HardwareSerial or SoftwareSerial
-//Picaso_Serial_4DLib Display(&DisplaySerial);
+Picaso_Serial_4DLib Display(&DisplaySerial);
 
 // Use this block if using a different Serial class
 //
-void customSetBaudRate(unsigned long newRate) {
-  DisplaySerial.flush();
-  DisplaySerial.end();
-  DisplaySerial.begin(newRate);
-  delay(50) ; // Display sleeps for 100
-  DisplaySerial.flush();
-}
-Picaso_Serial_4DLib Display(&DisplaySerial, customSetBaudRate);
+// void customSetBaudRate(unsigned long newRate) {
+//   DisplaySerial.flush();
+//   DisplaySerial.end();
+//   DisplaySerial.begin(newRate);
+//   delay(50) ; // Display sleeps for 100
+//   DisplaySerial.flush();
+// }
+// Picaso_Serial_4DLib Display(&DisplaySerial, customSetBaudRate);
 
 const char *atoz = {"abcdefghijklmnopqrstuvwxyz"} ;
 
