@@ -16,44 +16,28 @@
 
 
 Picaso_Serial_4DLib::Picaso_Serial_4DLib(Stream * virtualPort, void (*setBaudRateHndl)(unsigned long)) { 
-    _virtualPort = virtualPort; 
-    setBaudRateExternal = setBaudRateHndl;
-    setBaudRateInternal = &Picaso_Serial_4DLib::exSetBaudRateHndl;
-    unknownSerial = true;
-#if !defined(ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_SAM)
-	//Only done for non-SAMD/SAM architectures
-	_virtualPort->flush();
-#endif
+  _virtualPort = virtualPort; 
+  setBaudRateExternal = setBaudRateHndl;
+  setBaudRateInternal = &Picaso_Serial_4DLib::exSetBaudRateHndl;
+  unknownSerial = true;
 }
 
 Picaso_Serial_4DLib::Picaso_Serial_4DLib(HardwareSerial * serial) { 
-    _virtualPort = (Stream *)serial; 
-    setBaudRateInternal = &Picaso_Serial_4DLib::hwSetBaudRateHndl;
-#if !defined(ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_SAM)
-	//Only done for non-SAMD/SAM architectures
-	_virtualPort->flush();
-#endif
+  _virtualPort = (Stream *)serial; 
+  setBaudRateInternal = &Picaso_Serial_4DLib::hwSetBaudRateHndl;
 }
 
 #ifdef SoftwareSerial_h		
 Picaso_Serial_4DLib::Picaso_Serial_4DLib(SoftwareSerial * serial) { 
-    _virtualPort = (Stream *)serial; 
-    setBaudRateInternal = &Picaso_Serial_4DLib::swSetBaudRateHndl;
-#if !defined(ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_SAM)
-	//Only done for non-SAMD/SAM architectures
-	_virtualPort->flush();
-#endif
+  _virtualPort = (Stream *)serial; 
+  setBaudRateInternal = &Picaso_Serial_4DLib::swSetBaudRateHndl;
 }
 #endif
 
 #ifdef AltSoftSerial_h
 Picaso_Serial_4DLib::Picaso_Serial_4DLib(AltSoftSerial * serial) { 
-    _virtualPort = (Stream *)serial; 
-    setBaudRateInternal = &(Picaso_Serial_4DLib::alSetBaudRateHndl);
-#if !defined(ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_SAM)
-	//Only done for non-SAMD/SAM architectures
-	_virtualPort->flush();
-#endif
+  _virtualPort = (Stream *)serial; 
+  setBaudRateInternal = &(Picaso_Serial_4DLib::alSetBaudRateHndl);
 }
 #endif
 
